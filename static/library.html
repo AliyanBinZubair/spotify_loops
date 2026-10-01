@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Library</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark">
+    <div class="app-shell">
+        <header class="top-bar">
+            <img src="/static/music_player_icon.png" class="top-logo" alt="Logo">
+            <h1>Your Library</h1>
+        </header>
+
+        <section class="add-song-card">
+            <input type="text" id="song-title" placeholder="Song title">
+            <input type="text" id="song-url" placeholder="Song URL">
+            <button id="add-song-btn">Add Song</button>
+            <p id="add-message"></p>
+        </section>
+        
+        <section id="song-list" class="track-list"></section>
+        <audio id="player"></audio>
+    </div>
+    <div id="mini-player" class="mini-player hidden">
+        <!-- Row 1: Left Song Details & Right Control Panel Grouped Center -->
+        <div class="player-top-row">
+            <div class="mini-player-info">
+                <div id="now-playing-title" class="mini-title">—</div>
+            </div>
+            
+            <div class="loop-controls">
+                <button id="set-start-btn" title="Set loop start">⏮</button>
+                <div class="mini-controls">
+                    <button id="play-pause-btn">▶</button>
+                </div>
+                <button id="set-end-btn" title="Set loop end">⏭</button>
+                <button id="toggle-loop-btn" title="Toggle loop" aria-label="Repeat">
+                    <svg class="repeat-icon" viewBox="0 0 24 24">
+                        <path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4z"/>
+                        <path d="M6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/>
+                    </svg>
+                </button>
+                <button id="save-loop-btn" title="Save this loop">💾</button>
+            </div>
+            
+            <!-- Right Empty Space balancing the title width so controls stay dead-center -->
+            <div class="player-right-spacer"></div>
+        </div>
+
+        <!-- Row 2: Bottom Progress Timeline -->
+        <div class="player-bottom-row">
+            <!-- Added id="current-time-text" -->
+            <span id="current-time-text" class="time-stamp current-time">0:00</span>
+        
+            <div id="progress-bar" class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            
+            <!-- Added id="total-duration-text" -->
+            <span id="total-duration-text" class="time-stamp total-time">0:00</span>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <button class="nav-item active">Home</button>
+        <button class="nav-item">Profile</button>
+        <button class="nav-item">Settings ⚙</button>
+    </nav>
+
+    <script src="/static/library.js"></script>
+</body>
+</html>

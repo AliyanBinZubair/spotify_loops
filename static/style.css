@@ -1,0 +1,431 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.page {
+    display: flex;
+    min-height: 100vh;
+}
+
+.form-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 30px;
+}
+
+.logo-mark {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px auto;
+}
+
+.logo-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16x;
+}
+
+.form-card h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.form-card input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 14px;
+    background: #131a3d;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 12px;
+}
+
+.primary-btn:hover {
+    background: #0d1230;
+}
+
+.secondary-btn {
+    width: 100%;
+    padding: 12px;
+    background: none;
+    border: none;
+    color: #131a3d;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.message {
+    text-align: center;
+    margin-top: 12px;
+    color: #d33;
+    font-size: 14px;
+}
+
+.art-side {
+    flex: 1;
+    background: linear-gradient(135deg, #0a1035, #1c2b7a);
+    background-image:
+        repeating-linear-gradient(45deg, #2a3fc7 0, #2a3fc7 2px, transparent 2px, transparent 40px);
+}
+
+@media (max-width: 800px) {
+    .art-side {
+        display: none;
+    }
+}
+
+
+
+body.dark {
+    background: #0d1230;
+    color: #f2f2f7;
+    min-height: 100vh;
+    padding-bottom: 80px; /* room for the fixed bottom nav */
+}
+
+.app-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.top-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+}
+
+.top-bar h1 {
+    font-size: 22px;
+}
+
+.add-song-card {
+    background: #171d4a;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.add-song-card input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #232a5c;
+    color: #f2f2f7;
+    font-size: 14px;
+}
+
+.add-song-card input::placeholder {
+    color: #8b90b3;
+}
+
+.add-song-card button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 999px;
+    background: #4a5bd4;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-song-card button:hover {
+    background: #3c4bc0;
+}
+
+#add-message {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #8b90b3;
+}
+
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.track-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.track-row:hover {
+    background: #171d4a;
+}
+
+.track-number {
+    width: 24px;
+    color: #8b90b3;
+    font-size: 14px;
+    text-align: center;
+}
+
+.track-info {
+    flex: 1;
+}
+
+.track-title {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.track-artist {
+    font-size: 13px;
+    color: #8b90b3;
+}
+
+.track-heart {
+    color: #8b90b3;
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #171d4a;
+    display: flex;
+    justify-content: space-around;
+    padding: 14px 0;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: #8b90b3;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    color: #f2f2f7;
+    font-weight: 600;
+}
+
+
+
+
+.mini-player {
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    background: #171d4a;
+    padding: 12px 24px;
+    display: flex;
+    flex-direction: column; /* Stacks top panel row over the tracking progress bar */
+    gap: 12px;
+    border-top: 1px solid #232a5c;
+}
+
+.mini-player.hidden {
+    display: none;
+}
+
+/* Row Layout Management */
+.player-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.player-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 700px; /* Limits the timeline width so it doesn't stretch too thin */
+    margin: 0 auto;   /* Centers the timeline horizontally */
+}
+
+/* Layout Balancing Items */
+.mini-player-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.player-right-spacer {
+    flex: 1; /* Matches the left info box width exactly, keeping controls perfectly centered */
+}
+
+.mini-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+}
+
+/* Timeline Layout Elements */
+.time-stamp {
+    font-size: 12px;
+    color: #8b90b3;
+    min-width: 35px;
+}
+
+.progress-bar {
+    position: relative;
+    flex-grow: 1;
+    height: 5px;
+    border-radius: 20px;
+    background: #232a5c;
+    cursor: pointer;
+}
+
+.progress-bar::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+}
+
+.progress-fill {
+    position: absolute;
+    height: 100%;
+    background: #4a5bd4;
+    width: 57%; /* Example tracking percentage */
+    border-radius: 20px;
+}
+
+/* Media Controls Cluster Placement */
+.loop-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Play button matches style circle layout */
+.mini-controls button {
+    background: white; /* Clean contrast look from your reference picture */
+    border: none;
+    color: #171d4a;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.mini-controls button:hover {
+    transform: scale(1.05);
+}
+
+.loop-controls button:not(#play-pause-btn) {
+    background: none;
+    border: none;
+    color: #8b90b3;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.loop-controls button:not(#play-pause-btn):hover {
+    color: #f2f2f7;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Repeat toggle action tracking elements */
+#toggle-loop-btn .repeat-icon {
+  width: 22px;   
+  height: 22px;
+  fill: #8b90b3;
+  transition: fill 0.3s ease; 
+  pointer-events: none;
+}
+
+#toggle-loop-btn.active .repeat-icon {
+  fill: #4CAF50; 
+}
+
+
+
+
+
+.track-row.playing {
+    background: #232a5c;
+}
+
+.track-row.playing .track-title {
+    color: #7c8bff;
+}
+
+.track-number .playing-icon {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+}
+
+.playing-icon span {
+    width: 2px;
+    background: #7c8bff;
+    animation: bounce 0.8s infinite ease-in-out;
+}
+
+.playing-icon span:nth-child(1) { height: 40%; animation-delay: 0s; }
+.playing-icon span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+.playing-icon span:nth-child(3) { height: 60%; animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+}
