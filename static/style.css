@@ -8,13 +8,15 @@ body {
     font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-.page {
-    display: flex;
-    min-height: 100vh;
-}
 
-.form-side {
-    flex: 1;
+ /* LOGIN PAGE */
+ .page {
+     display: flex;
+     min-height: 100vh;
+    }
+
+    .form-side {
+        flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -102,17 +104,17 @@ body {
 }
 
 
-
-body.dark {
-    background: #0d1230;
-    color: #f2f2f7;
-    min-height: 100vh;
-    padding-bottom: 80px; /* room for the fixed bottom nav */
-}
-
-.app-shell {
-    max-width: 480px;
-    margin: 0 auto;
+ /* LIBRARY PAGE */
+ body.dark {
+     background: #0d1230;
+     color: #f2f2f7;
+     min-height: 100vh;
+     padding-bottom: 80px; /* room for the fixed bottom nav */
+    }
+    
+    .app-shell {
+        max-width: 480px;
+        margin: 0 auto;
     padding: 20px 16px;
 }
 
@@ -248,8 +250,42 @@ body.dark {
     font-weight: 600;
 }
 
+#logout-btn:hover {
+    color: #ff6b6b;
+}
+
+.track-row.playing {
+    background: #232a5c;
+}
+
+.track-row.playing .track-title {
+    color: #7c8bff;
+}
+
+.track-number .playing-icon {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+}
+
+.playing-icon span {
+    width: 2px;
+    background: #7c8bff;
+    animation: bounce 0.8s infinite ease-in-out;
+}
+
+.playing-icon span:nth-child(1) { height: 40%; animation-delay: 0s; }
+.playing-icon span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+.playing-icon span:nth-child(3) { height: 60%; animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+}
 
 
+/* MINI PLAYER */
 
 .mini-player {
     position: fixed;
@@ -301,6 +337,7 @@ body.dark {
     font-weight: 500;
     color: white;
     white-space: nowrap;
+    
 }
 
 /* Timeline Layout Elements */
@@ -310,31 +347,6 @@ body.dark {
     min-width: 35px;
 }
 
-.progress-bar {
-    position: relative;
-    flex-grow: 1;
-    height: 5px;
-    border-radius: 20px;
-    background: #232a5c;
-    cursor: pointer;
-}
-
-.progress-bar::before {
-    content: "";
-    position: absolute;
-    top: -10px;
-    left: 0;
-    right: 0;
-    bottom: -10px;
-}
-
-.progress-fill {
-    position: absolute;
-    height: 100%;
-    background: #4a5bd4;
-    width: 57%; /* Example tracking percentage */
-    border-radius: 20px;
-}
 
 /* Media Controls Cluster Placement */
 .loop-controls {
@@ -383,49 +395,360 @@ body.dark {
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* Repeat toggle action tracking elements */
-#toggle-loop-btn .repeat-icon {
-  width: 22px;   
-  height: 22px;
-  fill: #8b90b3;
-  transition: fill 0.3s ease; 
-  pointer-events: none;
+/* short loop icon */
+.repeat .repeat-icon {
+    width: 22px;   
+    height: 22px;
+    fill: #8b90b3;
+    transition: fill 0.3s ease; 
+    pointer-events: none;
 }
 
-#toggle-loop-btn.active .repeat-icon {
-  fill: #4CAF50; 
+.repeat.active .repeat-icon {
+    fill: #4CAF50; 
 }
 
+/* loop */
+#loop .loop-icon {
+    width: 22px;   
+    height: 22px;
+    fill: none;                 /* 👈 Stops the inside from turning grey */
+    stroke: #8b90b3;            /* 👈 Colors the actual arrow lines grey */
+    transition: stroke 0.3s ease; /* 👈 Smoothly transitions the stroke color */
+    pointer-events: none;
+}
 
+#loop.active .loop-icon {
+    stroke: #4CAF50;            /* 👈 Colors the arrow lines green when active */
+}
 
-
-
-.track-row.playing {
+.progress-bar {
+    position: relative;
+    flex-grow: 1;
+    height: 5px;
+    border-radius: 20px;
     background: #232a5c;
+    cursor: pointer;
 }
 
-.track-row.playing .track-title {
-    color: #7c8bff;
+.progress-bar::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    bottom: -10px;
 }
 
-.track-number .playing-icon {
+.progress-fill {
+    position: absolute;
+    height: 100%;
+    background: #4a5bd4;
+    width: 0%; /* Example tracking percentage */
+    border-radius: 20px;
+}
+
+
+/* Instagram-style Loop Region Outer Border */
+.loop-region {
+    position: absolute;
+    top: -15px;
+    bottom: -15px;
+    
+    /* 1. Change angle to 90deg to match horizontal progression perfectly */
+    background: linear-gradient(90deg,#4a5bd4, #7c8bff);
+    padding: 3px;
+    border-radius: 12px;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(74, 91, 212, 0.4);
+    box-sizing: border-box;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.loop-region:active {
+    cursor: pointer;
+}
+
+.loop-region.hidden {
+    display: none;
+}
+
+/* Center Content Area */
+.loop-center-content {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    background-color:#171d4a;
+    border-radius: 7px;
+    overflow: hidden; /* Clips the inner fill smoothly */
+    pointer-events: none;
+}
+
+.loop-center-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0%; /* Set dynamically via JS (e.g., 50%) */
+    background: linear-gradient(135deg,  #4a5bd4, #7c8bff);
+    border-radius: 7px 0 0 7px;
+}
+
+/* Side Handles */
+.loop-handle {
+    position: relative;
+    width: 6px;
+    height: 100%;
+    cursor: ew-resize;
+    touch-action: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 11;
+}
+
+.loop-handle::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    right: -12px;
+}
+
+/* Grip indicator inside handles */
+.loop-handle::after {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background-color: #ffffff;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.loop-handle.left {
+    margin-right: 2px;
+}
+
+.loop-handle.right {
+    margin-left: 2px;
+}
+
+
+
+/*  loading screen */
+
+/* Disabled button state */
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.8;
     display: inline-flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.playing-icon span {
-    width: 2px;
-    background: #7c8bff;
-    animation: bounce 0.8s infinite ease-in-out;
+/* Spinner Animation */
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-.playing-icon span:nth-child(1) { height: 40%; animation-delay: 0s; }
-.playing-icon span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
-.playing-icon span:nth-child(3) { height: 60%; animation-delay: 0.4s; }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
-@keyframes bounce {
-    0%, 100% { transform: scaleY(0.4); }
-    50% { transform: scaleY(1); }
+
+
+/* if screen is too small  */
+
+@media (min-width: 768px) {
+    .app-shell {
+        max-width: 720px;
+        padding: 32px 24px;
+    }
+
+    .top-bar h1 {
+        font-size: 28px;
+    }
+
+    .top-logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .add-song-card {
+        padding: 24px;
+    }
+
+    .add-song-card input {
+        padding: 16px 18px;
+        font-size: 16px;
+    }
+
+    .add-song-card button {
+        padding: 16px;
+        font-size: 16px;
+    }
+
+    .track-row {
+        padding: 16px 12px;
+    }
+
+    .track-title {
+        font-size: 18px;
+    }
+
+    .track-artist {
+        font-size: 14px;
+    }
+
+    .track-number {
+        font-size: 16px;
+    }
+
+    /* keep the player content lined up with the list */
+    .player-top-row,
+    .player-bottom-row {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .mini-title {
+        font-size: 16px;
+    }
+
+    .mini-controls button {
+        width: 46px;
+        height: 46px;
+        font-size: 16px;
+    }
+
+    .loop-controls button:not(#play-pause-btn) {
+        font-size: 24px;
+    }
+
+    .repeat .repeat-icon,
+    #loop .loop-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .time-stamp {
+        font-size: 14px;
+    }
+
+    .nav-item {
+        font-size: 15px;
+    }
+}
+
+
+
+/* SETTINGS PANEL */
+
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    display: flex;
+    justify-content: flex-end;   /* panel sits on the right edge */
+}
+
+.settings-overlay.hidden {
+    display: none;
+}
+
+.settings-panel {
+    width: 90%;                  /* covers most of the page, leaving a thin strip of backdrop on the left */
+    max-width: 600px;
+    height: 100%;
+    overflow-y: auto;
+    background: #171d4a;
+    border-radius: 20px 0 0 20px;
+    padding: calc(20px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+    animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.settings-header h2 {
+    font-size: 20px;
+}
+
+#settings-close {
+    background: none;
+    border: none;
+    color: #8b90b3;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 50%;
+}
+
+#settings-close:hover {
+    color: #f2f2f7;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-section {
+    background: #232a5c;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.settings-section h3 {
+    font-size: 13px;
+    color: #8b90b3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.settings-row {
+    font-size: 15px;
+}
+
+/* fade the backdrop in and out along with the panel */
+.settings-overlay {
+    animation: fadeIn 0.25s ease-out;
+}
+
+.settings-overlay.closing {
+    animation: fadeOut 0.25s ease-in forwards;
+}
+
+.settings-overlay.closing .settings-panel {
+    animation: slideOut 0.25s ease-in forwards;
+}
+
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+@keyframes slideOut {
+    from { transform: translateX(0); }
+    to   { transform: translateX(100%); }
 }

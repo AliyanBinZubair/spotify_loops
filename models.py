@@ -14,7 +14,8 @@ class Song(Base):
     file_path = Column(String, nullable=False)
     source_url = Column(String)
     duration = Column(Integer)
-
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
 class Loop(Base):
     __tablename__ = "loops"
     id = Column(Integer, primary_key=True)

@@ -24,14 +24,30 @@ async function login() {
 }
 
 async function register() {
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     
+    if (username.length < 3) {
+    messageEl.textContent = "Username must be at least 3 characters.";
+    return;}
+
+    if (password.length < 8) {
+    messageEl.textContent = "Password must be at least 8 characters.";
+    return;}
+
     const response = await fetch("/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
     });
+
+    if (!response.ok) {
+        const err = await response.json();
+        messageEl.textContent = typeof err.detail === "string"
+            ? err.detail
+            : err.detail[0].msg;   // Pydantic's 422 format
+        return;
+    }
     
     const data = await response.json();
     

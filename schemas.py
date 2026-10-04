@@ -1,5 +1,8 @@
 from pydantic import BaseModel
 
+class AccountDelete(BaseModel):
+    password: str
+    
 class LoopCreate(BaseModel):
     song_id: int
     start_time: float
