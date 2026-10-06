@@ -67,7 +67,7 @@ def upload_song(song: SongCreate, db: Session = Depends(get_db), current_user: U
 
     file_path = download_audio_from_youtube(song.source_url, SONGS_DIR, song.title)
 
-    new_song = Song(title=song.title, file_path=file_path, source_url=song.source_url)
+    new_song = Song(title=song.title, file_path=file_path, source_url=song.source_url, user_id=current_user.id)
     db.add(new_song)
     db.commit()
     db.refresh(new_song)
@@ -107,7 +107,7 @@ def Delete(song_name ,current_user : User = Depends(get_current_user), db: Sessi
 
 
 @app.get("/songs/{song_id}/play")
-def play_song(song_id: str, token: str, db: Session = Depends(get_db), current_user : User = Depends(get_current_user)):
+def play_song(song_id: int, token: str, db: Session = Depends(get_db)):
     payload = decode_access_token(token)
 
     if payload is None:
@@ -119,7 +119,7 @@ def play_song(song_id: str, token: str, db: Session = Depends(get_db), current_u
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
     
-    song = db.query(Song).filter(Song.id == song_id, Song.user_id == current_user.id).first()
+    song = db.query(Song).filter(Song.id == song_id, Song.user_id == user.id).first()
 
     if song is None:
         raise HTTPException(status_code=404, detail="Song not found")

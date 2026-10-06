@@ -243,15 +243,30 @@ body {
     color: #8b90b3;
     font-size: 13px;
     cursor: pointer;
+    font-weight: 600;
 }
 
 .nav-item.active {
     color: #f2f2f7;
-    font-weight: 600;
+    font-weight: bold;
 }
 
-#logout-btn:hover {
-    color: #ff6b6b;
+.nav-item:hover{
+    color: #f2f2f7;
+    font-weight: bold;
+}
+
+#download-btn {
+    display: inline-flex;
+    align-items: center;     /* centers the text and the icon on the same line */
+    gap: 8px;                /* space between the text and the icon */
+}
+
+.donwload-icon {
+    width: 1.2em;            /* scales with the text size */
+    height: 1.2em;
+    display: block;          /* removes the baseline gap that pushes it up */
+    flex-shrink: 0;
 }
 
 .track-row.playing {
@@ -578,77 +593,77 @@ body {
         max-width: 720px;
         padding: 32px 24px;
     }
-
+    
     .top-bar h1 {
         font-size: 28px;
     }
-
+    
     .top-logo {
         width: 48px;
         height: 48px;
     }
-
+    
     .add-song-card {
         padding: 24px;
     }
-
+    
     .add-song-card input {
         padding: 16px 18px;
         font-size: 16px;
     }
-
+    
     .add-song-card button {
         padding: 16px;
         font-size: 16px;
     }
-
+    
     .track-row {
         padding: 16px 12px;
     }
-
+    
     .track-title {
         font-size: 18px;
     }
-
+    
     .track-artist {
         font-size: 14px;
     }
-
+    
     .track-number {
         font-size: 16px;
     }
-
+    
     /* keep the player content lined up with the list */
     .player-top-row,
     .player-bottom-row {
         max-width: 720px;
         margin: 0 auto;
     }
-
+    
     .mini-title {
         font-size: 16px;
     }
-
+    
     .mini-controls button {
         width: 46px;
         height: 46px;
         font-size: 16px;
     }
-
+    
     .loop-controls button:not(#play-pause-btn) {
         font-size: 24px;
     }
-
+    
     .repeat .repeat-icon,
     #loop .loop-icon {
         width: 26px;
         height: 26px;
     }
-
+    
     .time-stamp {
         font-size: 14px;
     }
-
+    
     .nav-item {
         font-size: 15px;
     }
@@ -680,6 +695,33 @@ body {
     border-radius: 20px 0 0 20px;
     padding: calc(20px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
     animation: slideIn 0.25s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-footer {
+    margin-top: auto;            /* pushes the footer to the bottom of the panel */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#logout-btn {
+    width: 100%;
+    padding: 14px;
+    background: none;
+    border-color: #4a5bd4;
+    color: #f2f2f7;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#logout-btn:hover {
+     background: #4a5bd4;
+    color: #fff;
 }
 
 @keyframes slideIn {

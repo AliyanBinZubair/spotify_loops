@@ -64,7 +64,7 @@ function enterSegmentMode() {
     if (!audioPlayer.duration) return;
 
     segmentLoopActive = true;
-    toggelSegmentButton.classList.add("active")
+    toggelSegmentButton.classList.add("active");
     progressBar.classList.add("segment-active");
     loopRegionEl.classList.remove("hidden");
 
@@ -86,6 +86,7 @@ function exitSegmentMode() {
     segmentLoopActive = false;
     progressBar.classList.remove("segment-active");
     loopRegionEl.classList.add("hidden");
+    toggelSegmentButton.classList.remove("active");
 }
 
 
