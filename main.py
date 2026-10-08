@@ -150,3 +150,12 @@ def delete_account(data: AccountDelete, db: Session = Depends(get_db), current_u
     db.delete(current_user)
     db.commit()
     return {"message": "Account deleted"}
+
+
+
+@app.get("/songs/{song_id}/download")
+def download_song(song_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    song = db.query(Song).filter(Song.id == song_id, Song.user_id == current_user.id).first()
+    if song is None or not os.path.exists(song.file_path):
+        raise HTTPException(status_code=404, detail="Song not found")
+    return FileResponse(song.file_path, media_type="audio/mpeg", filename=f"{song.title}.mp3")

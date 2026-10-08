@@ -6,6 +6,7 @@ const playPauseBtn = document.getElementById("play-pause-btn");
 const progressFill = document.getElementById("progress-fill");
 const loopCenterFill = document.getElementById("center-fill");
 const addSongBtn = document.getElementById("add-song-btn")
+const addSongCard = document.getElementById("add-song-card");
 const totalDurationText = document.getElementById("total-duration-text"); 
 const currentTimeText = document.getElementById("current-time-text"); 
 const progressBar = document.getElementById("progress-bar");
@@ -19,6 +20,9 @@ const loopEl = document.getElementById("loop");
 const settingsBtn = document.getElementById("settings-btn");
 const settingsOverlay = document.getElementById("settings-overlay");
 const settingsClose = document.getElementById("settings-close");
+const Home = document.getElementById("home-btn");
+const Downloads = document.getElementById("download-btn");
+const pageTitle = document.getElementById("page-title");
 const MIN_LOOP_LENGTH =8;
 const DEFAULT_LOOP_LENGTH = 30;
 const SETTINGS_CLOSE_MS = 250;     // must match the animation duration in CSS
@@ -33,6 +37,10 @@ let wasPlayingBeforeDrag = false;
 let songs = [];
 let currentSong = null;
 let loop = false;
+let deviceDB = null;
+let inDownloads = false;      // true while the Downloads tab is open
+let currentObjectUrl = null;  // the temporary address of the song being played
+
 
 
 //  SECURITY CHECK
@@ -48,6 +56,112 @@ function formatTime(seconds) {
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
+
+
+
+
+// opens the browser database (creates it the first time)
+function openDeviceDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open("music-db", 1);
+        request.onupgradeneeded = () => {
+            request.result.createObjectStore("songs", { keyPath: "id" });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+
+// stores one song (its id, title and the audio file) in that database
+function saveSongToDevice(song, blob) {
+    return new Promise((resolve, reject) => {
+        const tx = deviceDB.transaction("songs", "readwrite");
+        tx.objectStore("songs").put({ id: song.id, title: song.title, blob: blob });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+
+// reads all the songs saved on this device
+function getDownloadedSongs() {
+    return new Promise((resolve, reject) => {
+        const tx = deviceDB.transaction("songs", "readonly");
+        const request = tx.objectStore("songs").getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+
+// reads ONE saved song by its id
+function getSavedSong(id) {
+    return new Promise((resolve, reject) => {
+        const tx = deviceDB.transaction("songs", "readonly");
+        const request = tx.objectStore("songs").get(id);
+        request.onsuccess = () => resolve(request.result);   // undefined if not found
+        request.onerror = () => reject(request.error);
+    });
+}
+
+
+// shows them in the song list area
+async function showDownloads() {
+    if (!deviceDB) deviceDB = await openDeviceDB();
+    const downloaded = await getDownloadedSongs();
+    songs = downloaded;
+
+    const listEl = document.getElementById("song-list");
+    listEl.innerHTML = "";
+
+    if (downloaded.length === 0) {
+        listEl.textContent = "No downloaded songs yet.";
+        return;
+    }
+
+    downloaded.forEach((song, index) => {
+        const row = document.createElement("div");
+        row.className = "track-row";
+        row.dataset.songId = song.id;
+        row.dataset.index = index + 1;
+        row.innerHTML = `
+            <span class="track-number">${index + 1}</span>
+            <div class="track-info">
+                <div class="track-title"></div>
+                <div class="track-artist">Unknown Artist</div>
+            </div>`;
+        row.querySelector(".track-title").textContent = song.title;
+        row.addEventListener("click", () => playSong(song.id, song.title));
+        listEl.appendChild(row);
+    });
+    const listSpacer = document.createElement("div");
+    listSpacer.style.height = "120px"; // Gives enough clearance over the mini-player
+    listEl.appendChild(listSpacer);
+
+    highlightPlayingRow(currentSongId);
+}
+
+
+Downloads.addEventListener("click",() =>{
+    inDownloads = true;
+    showDownloads();
+    Home.classList.remove("active");
+    Downloads.classList.add("active");
+    addSongCard.classList.add("hidden");
+    pageTitle.textContent = "Downloads";
+});
+
+Home.addEventListener("click", () =>{
+    inDownloads = false;
+    loadSongs();
+    Home.classList.add("active");
+    Downloads.classList.remove("active");
+    addSongCard.classList.remove("hidden");
+    pageTitle.textContent = "Your Library";
+    });
+
+
 
 
 
@@ -158,7 +272,7 @@ loopEl.addEventListener("click", e => {
 
 //    PLAYING THE SONG THAT USER HAS SELECTED
 
-function playSong(songId, title) {
+async function playSong(songId, title) {
     // 1. Guard against undefined or missing ID
     if (!songId || songId === "undefined") {
         console.error("Cannot play song: invalid songId", songId);
@@ -169,9 +283,27 @@ function playSong(songId, title) {
         togglePlayPause();
         return;
     }
+
+    let newObjectUrl = null;
+    let source;
+    if (inDownloads) {
+        const saved = await getSavedSong(songId);
+        if (!saved) {
+            alert("This song is not saved on this device.");
+            return;
+        }
+        newObjectUrl = URL.createObjectURL(saved.blob);   // temporary address for the saved file
+        source = newObjectUrl;
+    } else {
+        source = "/songs/" + songId + "/play?token=" + token;
+    }
+
+    if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);   // free the previous one
+    currentObjectUrl = newObjectUrl;
+
     currentSongId = songId;
     currentSong = songs.findIndex(song => song.id === songId) /* give index of the current song */
-    audioPlayer.src = "/songs/" + songId + "/play?token=" + token;
+    audioPlayer.src = source;
     audioPlayer.play();
     
     nowPlayingTitle.textContent = title;
@@ -189,6 +321,7 @@ function togglePlayPause() {
         playPauseBtn.textContent = "⏸";
         activeRow.querySelector(".track-number").innerHTML =
             '<span class="playing-icon"><span></span><span></span><span></span></span>';
+        
     } else {
         audioPlayer.pause();
         playPauseBtn.textContent = "▶";
@@ -307,8 +440,31 @@ async function loadSongs() {
             <div class="track-info">
                 <div class="track-title"></div>
                 <div class="track-artist">Unknown Artist</div>
-            </div>`;
+            </div>
+            <button class="track-download" title="downlod">
+                <svg class="track-download-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+            </button>`;
         row.querySelector(".track-title").textContent = song.title;
+        row.querySelector(".track-download").addEventListener("click", async (e) => {
+            e.stopPropagation();   // stops the click from also playing the song
+            const response = await fetch("/songs/"+song.id+"/download",
+                {headers:{"Authorization":"Bearer "+token}}
+            );
+            if(!response.ok){
+                alert("something went wrong!");
+                return;
+            }
+            
+            const blob = await response.blob(); // the audio file as data
+            if (!deviceDB) deviceDB = await openDeviceDB();
+            await saveSongToDevice(song, blob);
+
+            alert("download"+song.title); // temporary, just so we can see it worked
+        });
         row.addEventListener("click", () => playSong(song.id, song.title));
         listEl.appendChild(row);
     });
@@ -316,6 +472,8 @@ async function loadSongs() {
     const listSpacer = document.createElement("div");
     listSpacer.style.height = "120px"; // Gives enough clearance over the mini-player
     listEl.appendChild(listSpacer);
+
+    highlightPlayingRow(currentSongId);
 }
 loadSongs();
 
@@ -323,27 +481,26 @@ loadSongs();
 // ADD EVENT LISTENER FOR FOR PREVIOUS SONG
 
 function PreviousSong(){
-    if (currentSong == 0){
-        currentSong = songs.length -1}    
-    else{
-        currentSong -=1;}
-    const songToPlay = songs[currentSong]
+    if (songs.length === 0) return;
+    const i = songs.findIndex(s => s.id === currentSongId);   // where the playing song is in the list now
+    currentSong = i <= 0 ? songs.length - 1 : i - 1;
+    const songToPlay = songs[currentSong];
     playSong(songToPlay.id, songToPlay.title);
 }
 previousSong.addEventListener("click",PreviousSong);
 
 
 //  ADD EVENT LISTENER FOR NEXT SONG
-
 function NextSong(){
-    if (currentSong >= (songs.length-1)){
-        currentSong = 0
-    }else{
-        currentSong +=1}
-        const songToPlay = songs[currentSong]
-        playSong(songToPlay.id, songToPlay.title);
-    }
+    if (songs.length === 0) return;
+    const i = songs.findIndex(s => s.id === currentSongId);
+    currentSong = (i + 1) % songs.length;    // % wraps back to 0 after the last song
+    const songToPlay = songs[currentSong];
+    playSong(songToPlay.id, songToPlay.title);
+}
 nextSong.addEventListener("click",NextSong)
+
+// if the song ends
 audioPlayer.addEventListener("ended",() =>{
     if (loop){
         audioPlayer.currentTime = 0

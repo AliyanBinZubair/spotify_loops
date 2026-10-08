@@ -172,6 +172,10 @@ body {
     background: #3c4bc0;
 }
 
+.add-song-card.hidden {
+    display: none;
+}
+
 #add-message {
     margin-top: 8px;
     font-size: 13px;
@@ -218,12 +222,28 @@ body {
     color: #8b90b3;
 }
 
-.track-heart {
+.track-download {
     color: #8b90b3;
     background: none;
     border: none;
-    font-size: 12px;
     cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.track-download:hover {
+    color: #f2f2f7;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.track-download-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 .bottom-nav {
@@ -262,7 +282,7 @@ body {
     gap: 8px;                /* space between the text and the icon */
 }
 
-.donwload-icon {
+.download-icon {
     width: 1.2em;            /* scales with the text size */
     height: 1.2em;
     display: block;          /* removes the baseline gap that pushes it up */

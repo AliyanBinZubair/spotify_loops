@@ -10,10 +10,11 @@
     <div class="app-shell">
         <header class="top-bar">
             <img src="/static/music_player_icon.png" class="top-logo" alt="Logo">
-            <h1>Your Library</h1>
+            <h1 id="page-title">Your Library</h1>
+            <p id="message"></p>
         </header>
 
-        <section class="add-song-card">
+        <section class="add-song-card" id="add-song-card">
             <input type="text" id="song-title" placeholder="Song title">
             <input type="text" id="song-url" placeholder="Song URL">
             <button id="add-song-btn">Add Song</button>
@@ -78,8 +79,8 @@
     </div>
     
     <nav class="bottom-nav">
-        <button class="nav-item active">Home</button>
-        <button class="nav-item" id="download-btn">Download
+        <button class="nav-item active" id="home-btn">Home</button>
+        <button class="nav-item" id="download-btn">Downloads
             <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
