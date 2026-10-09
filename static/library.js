@@ -23,6 +23,7 @@ const settingsClose = document.getElementById("settings-close");
 const Home = document.getElementById("home-btn");
 const Downloads = document.getElementById("download-btn");
 const pageTitle = document.getElementById("page-title");
+const offlineMessage = document.getElementById("offline-message");
 const MIN_LOOP_LENGTH =8;
 const DEFAULT_LOOP_LENGTH = 30;
 const SETTINGS_CLOSE_MS = 250;     // must match the animation duration in CSS
@@ -63,7 +64,12 @@ function formatTime(seconds) {
 // opens the browser database (creates it the first time)
 function openDeviceDB() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open("music-db", 1);
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            reject(new Error("user id is not saved yet"));
+            return;
+        }
+        const request = indexedDB.open("music-db-" + userId, 1);
         request.onupgradeneeded = () => {
             request.result.createObjectStore("songs", { keyPath: "id" });
         };
@@ -90,6 +96,26 @@ function getDownloadedSongs() {
         const tx = deviceDB.transaction("songs", "readonly");
         const request = tx.objectStore("songs").getAll();
         request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// deletes one saved song from the device (the server copy is not touched)
+function deleteSavedSong(id) {
+    return new Promise((resolve, reject) => {
+        const tx = deviceDB.transaction("songs", "readwrite");
+        tx.objectStore("songs").delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+// reads only the ids of the saved songs (not the audio files)
+function getDownloadedIds() {
+    return new Promise((resolve, reject) => {
+        const tx = deviceDB.transaction("songs", "readonly");
+        const request = tx.objectStore("songs").getAllKeys();
+        request.onsuccess = () => resolve(new Set(request.result));
         request.onerror = () => reject(request.error);
     });
 }
@@ -130,8 +156,24 @@ async function showDownloads() {
             <div class="track-info">
                 <div class="track-title"></div>
                 <div class="track-artist">Unknown Artist</div>
-            </div>`;
+            </div>
+            <button class="track-remove" title="Remove from device">
+                <svg class="track-remove-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7h16"/>
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                    <path d="M6 7l1 13h10l1-13"/>
+                    <path d="M9 7V4h6v3"/>
+                </svg>
+            </button>`;
         row.querySelector(".track-title").textContent = song.title;
+
+        row.querySelector(".track-remove").addEventListener("click", async (e) => {
+            e.stopPropagation();           // don't also start playing the song
+            await deleteSavedSong(song.id);
+            showDownloads();               // redraw the list without it
+        });
+        
         row.addEventListener("click", () => playSong(song.id, song.title));
         listEl.appendChild(row);
     });
@@ -142,15 +184,16 @@ async function showDownloads() {
     highlightPlayingRow(currentSongId);
 }
 
-
-Downloads.addEventListener("click",() =>{
+// to move to download seciton
+function openDownloads() {
     inDownloads = true;
     showDownloads();
     Home.classList.remove("active");
     Downloads.classList.add("active");
     addSongCard.classList.add("hidden");
     pageTitle.textContent = "Downloads";
-});
+}
+Downloads.addEventListener("click", openDownloads);
 
 Home.addEventListener("click", () =>{
     inDownloads = false;
@@ -413,20 +456,58 @@ progressBar.addEventListener("click", (e) => {
 
 
 
+
+const DOWNLOAD_SVG = `
+    <svg class="dl-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle class="dl-circle" cx="12" cy="12" r="10"/>
+        <g class="dl-arrow">
+            <line x1="12" y1="7.5" x2="12" y2="16.5"/>
+            <polyline points="8.5 13 12 16.5 15.5 13"/>
+        </g>
+        <polyline class="dl-check" points="7.5 12.5 10.5 15.5 16.5 9"/>
+    </svg>`;
+
+// switches the button between "not downloaded" and "downloaded"
+function setDownloadButton(btn, isDownloaded) {
+    btn.classList.toggle("downloaded", isDownloaded);
+    btn.title = isDownloaded ? "Downloaded" : "Download";
+}
+
 //    LOADING THE LIST OF SONGS THAT USER HAVE ADDED 
 
 async function loadSongs() {
-    const response = await fetch("/songs", {
-        headers: { "Authorization": "Bearer " + token }
-    });
+    let response;
+    try {
+        response = await fetch("/songs", {
+            headers: { "Authorization": "Bearer " + token },
+            signal: AbortSignal.timeout(1000)     // give up after 1 second
+        });
+    } catch (error) {
+        // fetch only throws when the server can't be reached at all
+        offlineMessage.classList.remove("hidden");
+        openDownloads();
+        return;
+    }
+    offlineMessage.classList.add("hidden");   // the server answered, so hide the message
 
     if (!response.ok) {
         localStorage.removeItem("token");
+        localStorage.removeItem("userId");
         window.location.href = "/";
         return;
     }
 
     songs = await response.json();
+
+    let downloadedIds = new Set();
+    try {
+        if (!localStorage.getItem("userId")) await loadUsername();   // the id is needed to open the right database
+        if (!deviceDB) deviceDB = await openDeviceDB();
+        downloadedIds = await getDownloadedIds();
+    } catch (error) {
+        console.error("could not read downloads:", error);
+    }
+
     const listEl = document.getElementById("song-list");
     listEl.innerHTML = "";
 
@@ -441,30 +522,37 @@ async function loadSongs() {
                 <div class="track-title"></div>
                 <div class="track-artist">Unknown Artist</div>
             </div>
-            <button class="track-download" title="downlod">
-                <svg class="track-download-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-            </button>`;
+            <button class="track-download">${DOWNLOAD_SVG}</button>`;
         row.querySelector(".track-title").textContent = song.title;
-        row.querySelector(".track-download").addEventListener("click", async (e) => {
-            e.stopPropagation();   // stops the click from also playing the song
-            const response = await fetch("/songs/"+song.id+"/download",
-                {headers:{"Authorization":"Bearer "+token}}
-            );
-            if(!response.ok){
-                alert("something went wrong!");
-                return;
-            }
-            
-            const blob = await response.blob(); // the audio file as data
-            if (!deviceDB) deviceDB = await openDeviceDB();
-            await saveSongToDevice(song, blob);
 
-            alert("download"+song.title); // temporary, just so we can see it worked
+        const downloadBtn = row.querySelector(".track-download");
+        setDownloadButton(downloadBtn, downloadedIds.has(song.id));   // check mark if already saved
+
+        downloadBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();   // stops the click from also playing the song
+            if (downloadBtn.classList.contains("downloaded") || downloadBtn.classList.contains("loading")) return;
+
+            downloadBtn.classList.add("loading"); 
+            try {
+                const response = await fetch("/songs/" + song.id + "/download",
+                    { headers: { "Authorization": "Bearer " + token } }
+                );
+                if (!response.ok) throw new Error("download failed");
+
+                const blob = await response.blob();
+                if (!deviceDB) deviceDB = await openDeviceDB();
+                await saveSongToDevice(song, blob);
+
+                downloadBtn.classList.remove("loading");
+                setDownloadButton(downloadBtn, true);   // circle fills, check mark appears
+                downloadBtn.classList.add("pop");       // little bounce
+            } catch (error) {
+                console.error(error);
+                downloadBtn.classList.remove("loading");
+                alert("something went wrong!");
+            }
         });
+
         row.addEventListener("click", () => playSong(song.id, song.title));
         listEl.appendChild(row);
     });
@@ -559,6 +647,8 @@ document.getElementById("add-song-btn").addEventListener("click", async () => {
 });
 
 
+
+
 // logout btn
 
 document.getElementById("logout-btn").addEventListener("click", () => {
@@ -568,6 +658,7 @@ document.getElementById("logout-btn").addEventListener("click", () => {
     audioPlayer.load();
 
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     window.location.replace("/");
 });
 
@@ -608,10 +699,25 @@ document.addEventListener("keydown", (e) => {
 
 // show the logged-in username in the panel
 async function loadUsername() {
-    const response = await fetch("/me", { headers: { "Authorization": "Bearer " + token } });
-    if (response.ok) {
-        const me = await response.json();
-        document.getElementById("settings-username").textContent = me.username;
+    try {
+        const response = await fetch("/me", { headers: { "Authorization": "Bearer " + token } });
+        if (response.ok) {
+            const me = await response.json();
+            document.getElementById("settings-username").textContent = me.username;
+            localStorage.setItem("userId", me.id);
+        }
+    } catch (error) {
+        // server not reachable, leave the username empty
     }
 }
 loadUsername();
+
+
+
+
+// SERVICE WORKER
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("service worker registered"))
+        .catch((err) => console.error("service worker failed:", err));
+}

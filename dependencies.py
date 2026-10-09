@@ -12,6 +12,7 @@ def download_audio_from_youtube(url: str, output_dir: str, filename_base: str) -
     ydl_opts = {
         "format": "bestaudio/best",   # download the best quality audio track available
         "outtmpl": output_template,   # save it using the filename pattern above
+        "cookiesfrombrowser": ("firefox",),  # use the cookies of a browser where you're signed in
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "mp3",

@@ -135,6 +135,21 @@ body {
     font-size: 22px;
 }
 
+/* OFFLINE message */
+.offline-message {
+    background: #3a1f2b;
+    color: #ff6b6b;
+    font-size: 14px;
+    text-align: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.offline-message.hidden {
+    display: none;
+}
+
 .add-song-card {
     background: #171d4a;
     border-radius: 16px;
@@ -222,30 +237,137 @@ body {
     color: #8b90b3;
 }
 
+
+
+/* DOWNLOAD BUTTON (circle with arrow -> check mark) */
 .track-download {
-    color: #8b90b3;
     background: none;
     border: none;
+    color: #8b90b3;
     cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
+    padding: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: color 0.2s, transform 0.15s;
 }
 
-.track-download:hover {
+.track-download:not(.downloaded):hover {
     color: #f2f2f7;
-    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.08);
 }
 
-.track-download-icon {
-    width: 18px;
-    height: 18px;
+.dl-svg {
+    width: 26px;                 /* change this to make the icon bigger or smaller */
+    height: 26px;
+    display: block;
+    overflow: visible;
+}
+
+.dl-circle {
+    fill: transparent;
+    transition: fill 0.25s ease;
+}
+
+.dl-arrow {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+/* the check mark is hidden by pushing its dash out of view */
+.dl-check {
+    stroke: #0d1230;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    transition: stroke-dashoffset 0.3s ease 0.1s;
+}
+
+/* downloading: spinning ring and a bobbing arrow */
+.track-download.loading {
+    color: #f2f2f7;
+    pointer-events: none;
+}
+
+.track-download.loading .dl-circle {
+    stroke-dasharray: 20 43;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: dl-spin 0.9s linear infinite;
+}
+
+.track-download.loading .dl-arrow {
+    animation: dl-bob 0.9s ease-in-out infinite;
+}
+
+/* downloaded: green filled circle, arrow shrinks away, check mark draws in */
+.track-download.downloaded {
+    color: #00f108d0;
+    cursor: default;
+}
+
+.track-download.downloaded .dl-circle {
+    fill: #00f108d0;
+}
+
+.track-download.downloaded .dl-arrow {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.track-download.downloaded .dl-check {
+    stroke-dashoffset: 0;
+}
+
+.track-download.pop .dl-svg {
+    animation: dl-pop 0.4s ease;
+}
+
+@keyframes dl-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes dl-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(1.5px); }
+}
+
+@keyframes dl-pop {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.25); }
+}
+
+
+/* Remove icon in download section */
+
+.track-remove {
+    background: none;
+    border: none;
+    color: #8b90b3;
+    cursor: pointer;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.track-remove:hover {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.track-remove-icon {
+    width: 22px;
+    height: 22px;
     display: block;
 }
 
+
+/*  NAV */
 .bottom-nav {
     position: fixed;
     bottom: 0;
