@@ -936,3 +936,38 @@ body {
     from { transform: translateX(0); }
     to   { transform: translateX(100%); }
 }
+
+
+
+/* APP FEEL */
+html {
+    color-scheme: dark;                 /* dark scrollbars and dark native controls */
+    scrollbar-width: thin;
+    scrollbar-color: #2f3770 transparent;
+}
+
+html, body {
+    overscroll-behavior: none;          /* no bounce/glow when you scroll past the end */
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;   /* no grey flash when tapping on phones */
+}
+
+body {
+    user-select: none;                  /* UI text can't be selected by dragging */
+    -webkit-user-select: none;
+}
+
+input, textarea {
+    user-select: text;                  /* but you can still type in and select inputs */
+    -webkit-user-select: text;
+}
+
+img {
+    -webkit-user-drag: none;            /* the logo can't be dragged out like a picture */
+}
+
+button:focus:not(:focus-visible) {
+    outline: none;                      /* no blue box after a mouse click (keyboard focus still shows) */
+}

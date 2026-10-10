@@ -8,6 +8,7 @@ class LoopCreate(BaseModel):
     start_time: float
     end_time: float
     name: str | None = None
+    
 class SongCreate(BaseModel):
     title: str
     source_url: str

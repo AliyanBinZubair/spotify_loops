@@ -4,7 +4,7 @@ const messageEl = document.getElementById("auth-message");
 const token = localStorage.getItem("token");
 
 async function login() {
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     
     const response = await fetch("/login", {
@@ -12,15 +12,18 @@ async function login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
     });
+
+    if (!response.ok) {
+        const err = await response.json();
+        messageEl.textContent = typeof err.detail === "string"
+            ? err.detail
+            : "Login failed";
+        return;
+    }   
     
     const data = await response.json();
-    
-    if (data.access_token) {
-        localStorage.setItem("token", data.access_token);
-        window.location.href = "/library";
-    } else {
-        messageEl.textContent = data.error || "Login failed";
-    }
+    localStorage.setItem("token", data.access_token);
+    window.location.href = "/library";
 }
 
 async function register() {
