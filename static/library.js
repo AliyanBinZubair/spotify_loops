@@ -40,7 +40,8 @@ let currentSong = null;
 let loop = false;
 let deviceDB = null;
 let inDownloads = false;      // true while the Downloads tab is open
-let currentObjectUrl = null;  // the temporary address of the song being played
+let currentObjectUrl = null;
+let playing = false;  // the temporary address of the song being played
 
 
 
@@ -348,7 +349,9 @@ async function playSong(songId, title) {
     currentSong = songs.findIndex(song => song.id === songId) /* give index of the current song */
     audioPlayer.src = source;
     audioPlayer.play();
-    
+    playing = true;
+
+
     nowPlayingTitle.textContent = title;
     miniPlayer.classList.remove("hidden");
     playPauseBtn.textContent = "⏸";
@@ -361,12 +364,14 @@ async function playSong(songId, title) {
 function togglePlayPause() {
     if (audioPlayer.paused) {
         audioPlayer.play();
+        playing = !playing;
         playPauseBtn.textContent = "⏸";
         activeRow.querySelector(".track-number").innerHTML =
             '<span class="playing-icon"><span></span><span></span><span></span></span>';
         
     } else {
         audioPlayer.pause();
+        playing = !playing;
         playPauseBtn.textContent = "▶";
         activeRow.querySelector(".track-number").innerHTML = "▶"
     }
@@ -384,8 +389,10 @@ function highlightPlayingRow(songId) {
     globalThis.activeRow = activeRow
     if (activeRow) {
         activeRow.classList.add("playing");
-        activeRow.querySelector(".track-number").innerHTML =
-        '<span class="playing-icon"><span></span><span></span><span></span></span>';
+        if (playing){
+            activeRow.querySelector(".track-number").innerHTML =
+            '<span class="playing-icon"><span></span><span></span><span></span></span>';
+        }
     }
 }
 
@@ -552,15 +559,15 @@ async function loadSongs() {
                 alert("something went wrong!");
             }
         });
-
+        
         row.addEventListener("click", () => playSong(song.id, song.title));
         listEl.appendChild(row);
     });
-
+    
     const listSpacer = document.createElement("div");
     listSpacer.style.height = "120px"; // Gives enough clearance over the mini-player
     listEl.appendChild(listSpacer);
-
+    
     highlightPlayingRow(currentSongId);
 }
 loadSongs();

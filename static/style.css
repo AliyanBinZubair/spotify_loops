@@ -529,6 +529,7 @@ body {
     transition: transform 0.2s ease;
 }
 
+
 .mini-controls button:hover {
     transform: scale(1.05);
 }
